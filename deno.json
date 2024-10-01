@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "lib": ["deno.ns", "dom"]
+  },
+  "permissions": {
+    "read": [
+      "./package.json"
+    ]
+  },
+  "tasks": {
+    "start": "deno run --allow-read --allow-write index.ts"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "worcli",
+  "version": "0.0.1",
+  "description": "Superfast your productivity",
+  "main": "index.ts",
+  "repository": "git@github.com:MarceloZapatta/worcli.git",
+  "author": "Marcelo Zapatta <marcelozapatta0@gmail.com>",
+  "license": "MIT"
+}
