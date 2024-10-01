@@ -7,7 +7,7 @@ const app = new App();
 const args = Deno.args;
 
 if (args.length === 0) {
-  await app.printHelpDocs();
+  await app.showHelpDocs();
   Deno.exit(1);
 }
 

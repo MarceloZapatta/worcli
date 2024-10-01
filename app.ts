@@ -1,13 +1,25 @@
 import { green } from "https://deno.land/std@0.205.0/fmt/colors.ts";
-import helpDocumentation from "./help-documentation.ts";
+import {currentEnviroment, helpDocumentation} from "./help-documentation.ts";
 import EnviromentService from "./services/enviroment-service.ts";
 
 export default class App {
-  async printHelpDocs() {
+  enviromentService: EnviromentService;
+
+  constructor() {
+    this.enviromentService = new EnviromentService();
+  }
+
+  async showHelpDocs() {
     await helpDocumentation();
   }
 
+  showCurrentEviroment() {
+    currentEnviroment();
+  }
+
   processArg(args: string[]) {
+    this.showCurrentEviroment();
+
     const arg = args[0];
 
     switch (arg) {
@@ -16,6 +28,10 @@ export default class App {
         break;
       case "make:project":
         this.makeProject(args[1]);
+        break;
+      case "enviroment:activate":
+        this.setCurrentEnviroment(args[1]);
+        break;
       default:
         this.showCommandNotFound(arg);
         break;
@@ -23,11 +39,14 @@ export default class App {
   }
 
   async makeEnviroment(name: string) {
-    const enviromentService = new EnviromentService();
-    await enviromentService.createNewEnviroment(name);
+    await this.enviromentService.createNewEnviroment(name);
   }
 
-  makeProject() {
+  async setCurrentEnviroment(name: string) {
+    await this.enviromentService.setCurrentEnviroment(name);
+  }
+
+  makeProject(arg: string) {
     return true;
   }
 
