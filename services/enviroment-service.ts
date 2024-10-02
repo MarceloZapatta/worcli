@@ -1,6 +1,7 @@
-import { green, red } from "https://deno.land/std@0.205.0/fmt/colors.ts";
-import {folderExists, fileExists, updateEnvFile} from "../helpers/helpers.ts";
-import { config } from "https://deno.land/x/dotenv/mod.ts";
+import { green, red } from 'https://deno.land/std@0.205.0/fmt/colors.ts';
+import { folderExists, fileExists, updateEnvFile } from '../helpers/helpers.ts';
+import { config } from 'https://deno.land/x/dotenv/mod.ts';
+import EnviromentNotFound from '../exceptions/enviroment-not-found.ts';
 
 export default class EnviromentService {
   /**
@@ -10,6 +11,14 @@ export default class EnviromentService {
     await this.createEnviromentsFolder();
     await this.createEnviromentFolder(name);
     await this.createEnviromentFile(name);
+
+    const envPath = './enviroments/.env';
+    const env = config({ path: envPath });
+
+    if (!env.CURRENT_ENVIROMENT) {
+      await this.setCurrentEnviroment(name);
+    }
+
     console.log(`${green('Enviroment succesfully created!')}`);
   }
 
@@ -19,23 +28,37 @@ export default class EnviromentService {
   public async setCurrentEnviroment(name: string) {
     if (!(await folderExists(`./enviroments/${name}`))) {
       console.error(`Enviroment ${red(name)} was not found!`);
-      Deno.exit(0);      
+      Deno.exit(0);
     }
 
     const envPath = './enviroments/.env';
-    const env = config({ path: envPath});
+    const env = config({ path: envPath });
 
     env.CURRENT_ENVIROMENT = name;
 
-    await updateEnvFile(envPath, env)
-    console.log(`Current enviroment updated: (${green(name)})`)
+    await updateEnvFile(envPath, env);
+    console.log(`Current enviroment updated: (${green(name)})`);
+  }
+
+  /**
+   * Get current active enviroment
+   */
+  public getCurrentEnviroment(): string {
+    const envPath = './enviroments/.env';
+    const env = config({ path: envPath });
+
+    if (!env.CURRENT_ENVIROMENT) {
+      throw new EnviromentNotFound();
+    }
+
+    return env.CURRENT_ENVIROMENT;
   }
 
   /**
    * Create if not exists the enviroment folder
    */
   private async createEnviromentsFolder(): Promise<boolean> {
-    if (!(await folderExists("enviroments"))) {
+    if (!(await folderExists('enviroments'))) {
       Deno.mkdirSync('./enviroments');
     }
 
@@ -70,11 +93,10 @@ export default class EnviromentService {
 
     const envContent = `ENV_NAME=${name}`;
 
-
     try {
       await Deno.writeTextFile(`./${filePath}`, envContent);
     } catch (error) {
-      console.error("Error creating enviroment config file");
+      console.error('Error creating enviroment config file');
     }
 
     return true;

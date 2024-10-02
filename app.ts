@@ -1,12 +1,16 @@
-import { green } from "https://deno.land/std@0.205.0/fmt/colors.ts";
-import {currentEnviroment, helpDocumentation} from "./help-documentation.ts";
-import EnviromentService from "./services/enviroment-service.ts";
+import { green } from 'https://deno.land/std@0.205.0/fmt/colors.ts';
+import { currentEnviroment, helpDocumentation } from './help-documentation.ts';
+import EnviromentService from './services/enviroment-service.ts';
+import EnviromentNotFound from './exceptions/enviroment-not-found.ts';
+import ProjectService from './services/project-service.ts';
 
 export default class App {
   enviromentService: EnviromentService;
+  projectService: ProjectService;
 
   constructor() {
     this.enviromentService = new EnviromentService();
+    this.projectService = new ProjectService();
   }
 
   async showHelpDocs() {
@@ -17,24 +21,33 @@ export default class App {
     currentEnviroment();
   }
 
-  processArg(args: string[]) {
+  async processArg(args: string[]) {
     this.showCurrentEviroment();
 
     const arg = args[0];
 
-    switch (arg) {
-      case "make:enviroment":
-        this.makeEnviroment(args[1]);
-        break;
-      case "make:project":
-        this.makeProject(args[1]);
-        break;
-      case "enviroment:activate":
-        this.setCurrentEnviroment(args[1]);
-        break;
-      default:
-        this.showCommandNotFound(arg);
-        break;
+    try {
+      switch (arg) {
+        case 'make:enviroment':
+          await this.makeEnviroment(args[1]);
+          break;
+        case 'make:project':
+          await this.makeProject(args[1]);
+          break;
+        case 'enviroment:activate':
+          await this.setCurrentEnviroment(args[1]);
+          break;
+        default:
+          this.showCommandNotFound(arg);
+          break;
+      }
+    } catch (error) {
+      if (error instanceof EnviromentNotFound) {
+        console.error('No enviroment is active.');
+        return Deno.exit(0);
+      }
+
+      throw error;
     }
   }
 
@@ -46,8 +59,8 @@ export default class App {
     await this.enviromentService.setCurrentEnviroment(name);
   }
 
-  makeProject(arg: string) {
-    return true;
+  async makeProject(arg: string) {
+    await this.projectService.createNewProject(arg);
   }
 
   showCommandNotFound(arg: string) {
