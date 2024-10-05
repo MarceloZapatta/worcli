@@ -8,6 +8,6 @@
     ]
   },
   "tasks": {
-    "start": "deno run --allow-read --allow-write index.ts"
+    "start": "deno run --allow-read --allow-write --allow-run index.ts"
   }
 }

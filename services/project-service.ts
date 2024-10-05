@@ -35,11 +35,35 @@ export default class ProjectService {
    * Create if not exists the project folder
    */
   private createRunFile(name: string): boolean {
+    const filePath = `./enviroments/${this.enviromentService.getCurrentEnviroment()}/${name}/run.sh`;
     let templateBash = '#!/usr/bin/env bash\n';
     templateBash += '# This is the run file for your project\n';
     templateBash += '# Please include any scripts you use to run your project\n';
 
-    Deno.writeTextFileSync(`./enviroments/${this.enviromentService.getCurrentEnviroment()}/${name}/run.sh`, templateBash);
+    Deno.writeTextFileSync(filePath, templateBash);
+    Deno.chmodSync(filePath, 0o755);
     return true;
+  }
+
+  async run(name: string) {
+    const filePath = `./enviroments/${this.enviromentService.getCurrentEnviroment()}/${name}/run.sh`;
+
+    console.log('to aqqq');
+
+    const command = new Deno.Command('bash', {
+      args: [
+        filePath
+      ],
+    });
+
+    const child = command.spawn();
+
+    // open a file and pipe the subprocess output to it.
+    child.stdout.pipeTo(
+      Deno.openSync("output", { write: true, create: true }).writable,
+    );
+
+    // manually close stdin
+    child.stdin.close();
   }
 }

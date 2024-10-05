@@ -28,14 +28,18 @@ export default class App {
 
     try {
       switch (arg) {
+        case 'run':
+        case 'project:run':
+          await this.projectService.run(args[1]);
+          break;
         case 'make:enviroment':
-          await this.makeEnviroment(args[1]);
+          await this.enviromentService.createNewEnviroment(args[1]);
           break;
         case 'make:project':
-          await this.makeProject(args[1]);
+          await this.projectService.createNewProject(args[1]);
           break;
         case 'enviroment:activate':
-          await this.setCurrentEnviroment(args[1]);
+          await this.enviromentService.setCurrentEnviroment(args[1]);
           break;
         default:
           this.showCommandNotFound(arg);
@@ -51,19 +55,7 @@ export default class App {
     }
   }
 
-  async makeEnviroment(name: string) {
-    await this.enviromentService.createNewEnviroment(name);
-  }
-
-  async setCurrentEnviroment(name: string) {
-    await this.enviromentService.setCurrentEnviroment(name);
-  }
-
-  async makeProject(arg: string) {
-    await this.projectService.createNewProject(arg);
-  }
-
-  showCommandNotFound(arg: string) {
+  private showCommandNotFound(arg: string) {
     console.log(`The command ${green(arg)} was not found.`);
   }
 }
